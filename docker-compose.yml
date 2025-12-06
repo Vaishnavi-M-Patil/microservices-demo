@@ -1,0 +1,145 @@
+version: '2.4'
+services:
+  frontend:
+    image: gcr.io/google-samples/microservices-demo/frontend:v0.10.0
+    container_name: frontend
+    ports:
+    - "8080:8080"
+    environment:
+    - PORT=8080
+    - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+    - CURRENCY_SERVICE_ADDR=currencyservice:7000
+    - CART_SERVICE_ADDR=cartservice:7070
+    - RECOMMENDATION_SERVICE_ADDR=recommendationservice:8080
+    - SHIPPING_SERVICE_ADDR=shippingservice:50051
+    - CHECKOUT_SERVICE_ADDR=checkoutservice:5050
+    - AD_SERVICE_ADDR=adservice:9555
+    - SHOPPING_ASSISTANT_SERVICE_ADDR=shoppingassistantservice:8080
+    - DISABLE_PROFILER=1
+    depends_on:
+    - productcatalogservice
+    - currencyservice
+    - cartservice
+    - recommendationservice
+    - shippingservice
+    - checkoutservice
+    - adservice
+    - shoppingassistantservice
+
+  cartservice:
+    image: gcr.io/google-samples/microservices-demo/cartservice:v0.10.0
+    container_name: cartservice
+    environment:
+    - PORT=7070
+    - REDIS_ADDR=redis-cart:6379
+    - DISABLE_PROFILER=1
+    depends_on:
+    - redis-cart
+    mem_limit: 128m
+    cpus: 0.2
+
+  redis-cart:
+    image: redis:alpine
+    container_name: redis-cart
+    volumes:
+    - redis-data:/data
+
+  productcatalogservice:
+    image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.10.0
+    container_name: productcatalogservice
+    environment:
+    - PORT=3550
+    - DISABLE_PROFILER=1
+    mem_limit: 128m
+    cpus: 0
+
+  currencyservice:
+    image: gcr.io/google-samples/microservices-demo/currencyservice:v0.10.0
+    container_name: currencyservice
+    environment:
+    - PORT=7000
+    - DISABLE_PROFILER=1
+    mem_limit: 128m
+    cpus: 0.1
+
+  paymentservice:
+    image: gcr.io/google-samples/microservices-demo/paymentservice:v0.10.0
+    container_name: paymentservice
+    environment:
+    - PORT=50051
+    - DISABLE_PROFILER=1
+    mem_limit: 128m
+    cpus: 0.1
+
+  shippingservice:
+    image: gcr.io/google-samples/microservices-demo/shippingservice:v0.10.0
+    container_name: shippingservice
+    environment:
+    - PORT=50051
+    - DISABLE_PROFILER=1
+    mem_limit: 128m
+    cpus: 0.1
+
+  emailservice:
+    image: gcr.io/google-samples/microservices-demo/emailservice:v0.10.0
+    container_name: emailservice
+    environment:
+    - PORT=8080
+    - DISABLE_PROFILER=1
+    mem_limit: 128m
+    cpus: 0.1
+
+  checkoutservice:
+    image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.10.0
+    container_name: checkoutservice
+    environment:
+    - PORT=5050
+    - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+    - SHIPPING_SERVICE_ADDR=shippingservice:50051
+    - PAYMENT_SERVICE_ADDR=paymentservice:50051
+    - EMAIL_SERVICE_ADDR=emailservice:8080
+    - CURRENCY_SERVICE_ADDR=currencyservice:7000
+    - CART_SERVICE_ADDR=cartservice:7070
+    - DISABLE_PROFILER=1
+    depends_on:
+    - productcatalogservice
+    - shippingservice
+    - paymentservice
+    - emailservice
+    - currencyservice
+    - cartservice
+    mem_limit: 128m
+    cpus: 0.1
+
+  recommendationservice:
+    image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.10.0
+    container_name: recommendationservice
+    environment:
+    - PORT=8080
+    - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+    - DISABLE_PROFILER=1
+    depends_on:
+    - productcatalogservice
+    mem_limit: 256m
+    cpus: 0.1
+
+  adservice:
+    image: gcr.io/google-samples/microservices-demo/adservice:v0.10.0
+    container_name: adservice
+    environment:
+    - PORT=9555
+    - DISABLE_PROFILER=1
+    mem_limit: 256m
+    cpus: 0.2
+
+  shoppingassistantservice:
+    image: gcr.io/google-samples/microservices-demo/shoppingassistantservice:v0.10.0
+    container_name: shoppingassistantservice
+    environment:
+    - PORT=8080
+    - DISABLE_PROFILER=1
+    mem_limit: 128m
+    cpus: 0.1
+
+volumes:
+  redis-data:
